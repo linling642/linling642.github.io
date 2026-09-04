@@ -1,0 +1,30 @@
+---
+const { title, description = '', date, author, source, category, tags = [] } = Astro.props;
+
+// 自动生成 JSON-LD 结构化数据 → AI / 搜索引擎直接读到作者、日期、出处、分类
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  datePublished: date,
+  author: { '@type': 'Person', name: author },
+  articleSection: category,
+  keywords: tags.join(','),
+  ...(source ? { citation: { '@type': 'Article', url: source } } : {}),
+};
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body>
+    <article>
+      <slot />
+    </article>
+  </body>
+</html>
