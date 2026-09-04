@@ -1,0 +1,28 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+const { post } = Astro.props;
+const { Content } = await post.render();
+---
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  date={post.data.date.toISOString()}
+  author={post.data.author}
+  source={post.data.source}
+  category={post.data.category}
+  tags={post.data.tags}
+>
+  <h1>{post.data.title}</h1>
+  <p>分类：{post.data.category} ｜ 作者：{post.data.author} ｜ 日期：{post.data.date.toISOString().slice(0, 10)}</p>
+  {post.data.source && <p>政策出处：<a href={post.data.source}>{post.data.source}</a></p>}
+  <Content />
+</BaseLayout>
