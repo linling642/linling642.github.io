@@ -1,0 +1,10 @@
+# 依赖与构建产物（不要提交）
+node_modules/
+dist/
+.astro/
+
+# 临时探测文件
+_probe.txt
+_envcheck.txt
+_envcheck2.txt
+预览示例-生成后的文章页.html
