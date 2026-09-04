@@ -1,0 +1,23 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const posts = (await getCollection('posts')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+---
+<BaseLayout
+  title="全部文章"
+  description="医保政策雷达全部文章列表"
+  breadcrumbs={[{ name: '首页', href: '/' }, { name: '全部文章', href: '/posts/' }]}
+>
+  <h1>全部文章</h1>
+  <ul class="archive">
+    {posts.map((p) => (
+      <li>
+        <a href={`/posts/${p.slug}/`}>{p.data.title}</a>
+        <span class="muted"> — {p.data.date.toISOString().slice(0, 10)} ｜ {p.data.category}</span>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
