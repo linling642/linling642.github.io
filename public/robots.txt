@@ -15,4 +15,4 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
-Sitemap: https://yibao-radar.example.com/sitemap-index.xml
+Sitemap: https://linling642.github.io/sitemap.xml
