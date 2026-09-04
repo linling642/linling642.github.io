@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# 放开主流 AI 爬虫，让豆包 / 元宝 / 千问 / Kimi 等能抓到
+User-agent: GPTBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: CCBot
+Allow: /
+User-agent: Bytespider
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: https://yibao-radar.example.com/sitemap-index.xml
