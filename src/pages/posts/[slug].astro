@@ -11,6 +11,18 @@ export async function getStaticPaths() {
 }
 const { post } = Astro.props;
 const { Content } = await post.render();
+
+const breadcrumbs = [
+  { name: '首页', href: '/' },
+  { name: '全部文章', href: '/posts/' },
+  { name: post.data.category, href: '/posts/' },
+];
+
+const all = await getCollection('posts');
+const related = all
+  .filter((p) => p.data.category === post.data.category && p.slug !== post.slug)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 5);
 ---
 <BaseLayout
   title={post.data.title}
@@ -20,9 +32,30 @@ const { Content } = await post.render();
   source={post.data.source}
   category={post.data.category}
   tags={post.data.tags}
+  breadcrumbs={breadcrumbs}
 >
-  <h1>{post.data.title}</h1>
-  <p>分类：{post.data.category} ｜ 作者：{post.data.author} ｜ 日期：{post.data.date.toISOString().slice(0, 10)}</p>
-  {post.data.source && <p>政策出处：<a href={post.data.source}>{post.data.source}</a></p>}
-  <Content />
+  <article class="article">
+    <h1>{post.data.title}</h1>
+    <p class="article-meta">
+      分类：<a href="/posts/">{post.data.category}</a> ｜ 作者：{post.data.author} ｜ 发布：{post.data.date.toISOString().slice(0, 10)}
+    </p>
+    {post.data.source && (
+      <p class="source">政策出处：<a href={post.data.source} target="_blank" rel="noopener">{post.data.source}</a></p>
+    )}
+    {post.data.tags?.length > 0 && (
+      <p class="tags">{post.data.tags.map((t) => <span class="tag">{t}</span>)}</p>
+    )}
+    <div class="prose"><Content /></div>
+  </article>
+
+  {related.length > 0 && (
+    <section class="related">
+      <h2>相关阅读</h2>
+      <ul>
+        {related.map((r) => (
+          <li><a href={`/posts/${r.slug}/`}>{r.data.title}</a></li>
+        ))}
+      </ul>
+    </section>
+  )}
 </BaseLayout>
