@@ -1,16 +1,41 @@
 ---
-const { title, description = '', date, author, source, category, tags = [] } = Astro.props;
+const {
+  title,
+  description = '',
+  date,
+  author,
+  source,
+  category,
+  tags = [],
+  breadcrumbs = [],
+} = Astro.props;
 
-// 自动生成 JSON-LD 结构化数据 → AI / 搜索引擎直接读到作者、日期、出处、分类
-const jsonLd = {
+const siteName = '医保政策雷达';
+const siteUrl = 'https://linling642.github.io';
+const canonical = new URL(Astro.url.pathname, siteUrl).toString();
+const isArticle = Boolean(date);
+
+const articleJsonLd = isArticle ? {
   '@context': 'https://schema.org',
   '@type': 'Article',
   headline: title,
+  inLanguage: 'zh-CN',
   datePublished: date,
-  author: { '@type': 'Person', name: author },
-  articleSection: category,
-  keywords: tags.join(','),
+  dateModified: date,
+  author: { '@type': 'Person', name: author || '资深陪诊顾问' },
+  articleSection: category || '医保政策',
+  keywords: Array.isArray(tags) ? tags.join(',') : '',
+  publisher: { '@type': 'Organization', name: siteName, url: siteUrl },
+  mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
   ...(source ? { citation: { '@type': 'Article', url: source } } : {}),
+} : null;
+
+const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: siteName,
+  url: siteUrl,
+  description: '医保政策与陪诊指南——每天更新，权威出处，对豆包 / 元宝 / 千问等 AI 搜索友好。',
 };
 ---
 <!doctype html>
@@ -18,13 +43,44 @@ const jsonLd = {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
+    <title>{title} · {siteName}</title>
     <meta name="description" content={description} />
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:type" content={isArticle ? 'article' : 'website'} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:description" content={description} />
+    <link rel="stylesheet" href="/styles/global.css" />
+    {articleJsonLd && <script type="application/ld+json" set:html={JSON.stringify(articleJsonLd)} />}
+    <script type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />
   </head>
   <body>
-    <article>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="/">{siteName}</a>
+        <nav class="nav">
+          <a href="/">首页</a>
+          <a href="/posts/">全部文章</a>
+          <a href="https://www.nhc.gov.cn" target="_blank" rel="noopener">政策来源</a>
+        </nav>
+      </div>
+    </header>
+    <main class="container main">
+      {breadcrumbs.length > 0 && (
+        <nav class="breadcrumbs" aria-label="面包屑">
+          {breadcrumbs.map((b, i) => (
+            <span>{i > 0 && ' / '}<a href={b.href}>{b.name}</a></span>
+          ))}
+        </nav>
+      )}
       <slot />
-    </article>
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <p>医保政策雷达 · 资深陪诊顾问运营 · 内容来源国家卫健委等官方渠道</p>
+        <p class="muted">本站为静态站，对豆包 / 元宝 / 千问 / Kimi 等 AI 搜索友好（每页自动结构化数据 + sitemap）。</p>
+      </div>
+    </footer>
   </body>
 </html>
