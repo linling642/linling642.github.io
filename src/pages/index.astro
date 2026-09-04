@@ -1,0 +1,22 @@
+---
+import { getCollection } from 'astro:content';
+const posts = (await getCollection('posts')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head><meta charset="utf-8" /><title>医保政策雷达</title></head>
+  <body>
+    <h1>医保政策雷达</h1>
+    <p>已发布文章 {posts.length} 篇</p>
+    <ul>
+      {posts.map((p) => (
+        <li>
+          <a href={`/posts/${p.slug}/`}>{p.data.title}</a>
+          — {p.data.date.toISOString().slice(0, 10)}
+        </li>
+      ))}
+    </ul>
+  </body>
+</html>
