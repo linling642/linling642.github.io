@@ -1,22 +1,39 @@
 ---
 import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
 const posts = (await getCollection('posts')).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
+
+const categories = [...new Set(posts.map((p) => p.data.category))];
 ---
-<!doctype html>
-<html lang="zh-CN">
-  <head><meta charset="utf-8" /><title>医保政策雷达</title></head>
-  <body>
+<BaseLayout
+  title="医保政策雷达"
+  description="医保政策与陪诊指南，权威出处、每日更新，对豆包 / 元宝 / 千问等 AI 搜索友好。"
+>
+  <section class="hero">
     <h1>医保政策雷达</h1>
-    <p>已发布文章 {posts.length} 篇</p>
-    <ul>
+    <p class="lead">陪诊视角解读医保政策与就医指南——每天更新，篇篇标出处，AI 也能读懂你。</p>
+    <p class="stat">已发布 <strong>{posts.length}</strong> 篇 · 覆盖 {categories.length} 个栏目</p>
+  </section>
+
+  {categories.length > 0 && (
+    <section class="cats">
+      {categories.map((c) => <span class="tag">{c}</span>)}
+    </section>
+  )}
+
+  <section class="post-list">
+    <h2>最新发布</h2>
+    <div class="grid">
       {posts.map((p) => (
-        <li>
-          <a href={`/posts/${p.slug}/`}>{p.data.title}</a>
-          — {p.data.date.toISOString().slice(0, 10)}
-        </li>
+        <a class="card" href={`/posts/${p.slug}/`}>
+          <span class="card-cat">{p.data.category}</span>
+          <h3>{p.data.title}</h3>
+          <p class="card-meta">{p.data.date.toISOString().slice(0, 10)} ｜ {p.data.author}</p>
+        </a>
       ))}
-    </ul>
-  </body>
-</html>
+    </div>
+  </section>
+</BaseLayout>
